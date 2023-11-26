@@ -17,8 +17,8 @@ window.addEventListener('DOMContentLoaded', () => {
             };
 
             this.deleteRuleButton = this.createDeleteRuleButton();
-            this.customSelect = this.createCustomRuleElements().select;
-            this.customInput = this.createCustomRuleElements().input;
+            this.customSelect = this.createCustomRuleElements('select');
+            this.customInput = this.createCustomRuleElements('input');
             this.ruleElement = this.createRuleElement();
 
             this.deleteRuleElement();
@@ -45,7 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     <option value="Custom">Custom</option>
                 </select>`;
 
-            ruleElement.append(this.deleteRuleButton);
+            // ruleElement.append(this.deleteRuleButton);
 
             const options = ruleElement.querySelectorAll('.rule-form__pages > option');
             options.forEach((option, index) => {
@@ -68,38 +68,40 @@ window.addEventListener('DOMContentLoaded', () => {
             return deleteRuleButton;
         }
 
-        createCustomRuleElements() {
-            const word = this.ruleSettings.word;
+        createCustomRuleElements(control) {
+            // так ти не створюєш обидва елементи при кожному виклику, а тільки той, який потрібен
+            switch (control) {
+                case 'select':
+                    const word = this.ruleSettings.word;
+                    const select = document.createElement('select');
+                    select.classList.add('rules__select', 'rule-form__word');
+                    select.innerHTML = `
+                        <option selected value="Contains">Contains</option>
+                        <option value="Exact Match">Exact Match</option> `;
+                    const options = select.querySelectorAll('.rule-form__word > option');
+                    options.forEach((option) => {
+                        if (option.value === word) {
+                            option.selected = true
+                        }
+                    })
+                    return select;
+                case 'input':
+                    const input = document.createElement('div');
+                    input.innerHTML = `
+                        <input type="text" class="rules__input" placeholder="Type a full or partial URL">
+                        <div class="rules__input-error">URL is Missing</div>`;
 
-            const select = document.createElement('select');
-            select.classList.add('rules__select', 'rule-form__word');
-            select.innerHTML = `
-                <option selected value="Contains">Contains</option>
-                <option value="Exact Match">Exact Match</option> `;
-
-            const options = select.querySelectorAll('.rule-form__word > option');
-            options.forEach((option) => {
-                if (option.value == word) {
-                    option.selected = true
-                }
-            })
-
-            const input = document.createElement('div');
-            input.innerHTML = `
-                <input type="text" class="rules__input" placeholder="Type a full or partial URL">
-                <div class="rules__input-error">URL is Missing</div>`;
-
-            input.classList.add('rules__input-wrapper');
-
-            return {
-                select,
-                input,
+                    input.classList.add('rules__input-wrapper');
+                    return input;
+                default:
+                    console.error('Error in createCustomRuleElements()', control, 'is not defined');
+                    break;
             }
         }
 
         renderRule() {
             this.wrapperElemetn.append(this.ruleElement);
-            this.addOrElement();
+            this.ruleElement.append(this.deleteRuleButton);
         }
 
         deleteRuleElement() {
@@ -110,18 +112,16 @@ window.addEventListener('DOMContentLoaded', () => {
                         this.ruleElement.remove();
                     }
                 })
-
-                this.addOrElement();
             });
         }
 
         customRuleRender() {
-            if (this.ruleSettings.page == 'Custom') {
+            // Краще було б зробити через switch на випадок, якщо в майбутньому буде більше варіантів
+            // Але якщо вже так, то через ===/!== та else if
+            if (this.ruleSettings.page === 'Custom') {
                 this.ruleElement.append(this.customSelect)
                 this.ruleElement.append(this.customInput)
-            }
-
-            if (this.ruleSettings.page != 'Custom') {
+            } else if (this.ruleSettings.page !== 'Custom') {
                 this.customSelect.remove();
                 this.customInput.remove();
             }
@@ -151,29 +151,8 @@ window.addEventListener('DOMContentLoaded', () => {
                 console.log(1);
                 if (!target.value.length) {
                     this.customInput.querySelector('.rules__input-error').style.display = 'block'
-                }
-
-                if (target.value.length) {
+                } else {
                     this.customInput.querySelector('.rules__input-error').style.display = 'none'
-                }
-            })
-        }
-
-        addOrElement() {
-            const arrayOfRulesElements = this.wrapperElemetn.querySelectorAll('.rule-form');
-            const arrayOfOrElements = this.wrapperElemetn.querySelectorAll('.rules__or');
-
-            arrayOfOrElements.forEach(element => {
-                element.remove();
-            })
-
-            arrayOfRulesElements.forEach((ruleElement, index) => {
-                if (index > 0) {
-                    const ruleOr = document.createElement('div');
-                    ruleOr.classList.add('rules__or');
-                    ruleOr.textContent = 'OR';
-
-                    ruleElement.before(ruleOr);
                 }
             })
         }
