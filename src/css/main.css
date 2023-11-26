@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap");
+/* Краще уникати імпортів в CSS, бо вони сповільнюють швидкість завантаження сторінки */
+/* @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap"); */
 html {
 	font-family: "Roboto", sans-serif;
 }
@@ -45,10 +46,15 @@ html {
 	position: relative;
 	width: fit-content;
 	display: flex;
+	flex-flow: row wrap;
 	align-items: baseline;
-	gap: 40px;
+	gap: 10px 40px;
 }
-.rules__or {
+/* якщо щось можна зробити стилями я це роблю стилями :) */
+.rules .rule-form + .rule-form::before {
+	content: 'OR';
+	display: block;
+	flex: 1 0 100%;
 	margin-left: 30px;
 	letter-spacing: 1px;
 	font-weight: 700;
@@ -96,9 +102,8 @@ html {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	position: absolute;
-	top: 11px;
-	right: -40px;
+	/* через те що OR тепер частина .rule-form абсолютне позіціонування ламаєиться, та й без цього може бути замінене на order */
+	order: 4; 
 	cursor: pointer;
 }
 .rules__close-button:hover {
